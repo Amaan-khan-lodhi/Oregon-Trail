@@ -11,13 +11,7 @@ You're lost in the forest. Your goal? Travel 10.0 km to escape. But it's not eas
 - You can **hunt for food, rest, or sell what you've got**
 - Find **sticks** to defend yourself
 Reach 100 distance = **YOU WIN** 🎉
- 
-## 🚀 Quick Start (Easiest Way)
- 
-1. Download the latest release
-2. Extract the ZIP file
-3. Double-click **game.exe**
-4. Done! Game runs (raylib.dll is already included)
+
 ## 🎯 How to Play
  
 **Your Stats:**
