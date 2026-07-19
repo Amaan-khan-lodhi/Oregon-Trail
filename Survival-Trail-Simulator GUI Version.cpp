@@ -9,7 +9,7 @@
  
 using namespace std;
  
-// ================= GAME CONSTANTS (FROM CONSOLE VERSION - 100% UNCHANGED) =================
+// ================= GAME CONSTANTS =================
 namespace GameConstants {
     constexpr int MAX_HEALTH = 100;
     constexpr int MAX_FOOD = 100;
@@ -367,7 +367,7 @@ DrawStormCloud(driftX - 1750, 45, 0.8f, cloudAlpha);
     int eyeX = GetScreenWidth() / 2;
     int eyeY = 150;
 
-    // Add a subtle glow ring behind each eye (bigger, softer, more menacing)
+    //subtle glow ring behind each eye
    DrawCircle(eyeX - 80, eyeY, 45, Color{255, 0, 0, (unsigned char)(intensity * 30)}); 
 DrawCircle(eyeX + 80, eyeY, 45, Color{255, 0, 0, (unsigned char)(intensity * 30)});
 
@@ -432,7 +432,7 @@ public:
     Vector2 textSize = MeasureTextEx(font, message.c_str(), 16, 1);
     float boxWidth = min(650.0f, max(300.0f, textSize.x + 50));
     float boxX = (screenWidth - boxWidth) / 2;
-    float boxY = 150; // sits below the storm cloud band, clear of overlap
+    float boxY = 150; // sits below the storm cloud 
 
     DrawRectangleRounded({boxX, boxY, boxWidth, 44}, 0.5f, 8, Color{34, 102, 34, 230});
     DrawTextEx(font, message.c_str(), {boxX + (boxWidth - textSize.x) / 2, boxY + 14}, 16, 1, Color{200, 255, 200, 255});
@@ -748,7 +748,7 @@ void DrawWolfCharacter(int playerX, int groundY, float alpha)
 {
     int cx = playerX + 110;
 
-    // Grey wolf palette - light body, darker back, white belly/chest
+    // Grey wolf palette
     Color furBack   = Color{120, 125, 135, (unsigned char)alpha}; // steel grey
     Color furBody   = Color{165, 170, 178, (unsigned char)alpha}; // lighter grey
     Color furBelly  = Color{225, 225, 225, (unsigned char)alpha}; // near white
@@ -769,12 +769,12 @@ DrawEllipse(cx, groundY - 24, 30, 10, furBelly);
     DrawRectangle(cx + 14, groundY - 18, 10, 20, furDark);
     DrawRectangle(cx + 34, groundY - 18, 10, 20, furDark);
 
-// Head (toward player, left side) - square shaped
+// Head
 int headX = cx - 55;
 int headY = groundY - 50;
 DrawRectangleRounded({(float)headX - 16, (float)headY - 16, 32, 32}, 0.15f, 4, furBody);
 
-// Snout (tapered, pointed) - anchored to square head's left edge
+// Snout
 DrawTriangle(
     {(float)headX - 12, (float)headY - 5},
     {(float)headX - 36, (float)headY + 3},
@@ -783,7 +783,7 @@ DrawTriangle(
 );
 DrawCircle(headX - 34, headY + 3, 3, noseColor);
 
-// Ears - anchored to square head's top corners
+// Ears 
 DrawTriangle({(float)headX - 14, (float)headY - 14}, {(float)headX - 20, (float)headY - 34}, {(float)headX - 2, (float)headY - 16}, furBack);
 DrawTriangle({(float)headX + 4, (float)headY - 16}, {(float)headX, (float)headY - 36}, {(float)headX + 14, (float)headY - 18}, furBack);
 
@@ -826,11 +826,11 @@ void DrawPlayer(int x, int groundY, bool hasWeapon, const string& action, float 
         bodyLean = (int)(5 * sinf(progress * PI));
     }
     else if (animating && action == "rest") {
-        bob = 0; // override idle bob, keep player low/still
+        bob = 0; 
         baseY = groundY;
     }
     else if (animating && action == "eat") {
-        armAngleR = -50; // arm held up to mouth
+        armAngleR = -50; 
     }
 
     int headY = baseY - 70;
@@ -867,11 +867,11 @@ int faceY = headY;
 DrawCircle(faceX - 5, faceY - 2, 2, Color{30, 30, 30, 255});
 DrawCircle(faceX + 5, faceY - 2, 2, Color{30, 30, 30, 255});
 
-// Eyebrows (slightly angled for a bit of expression)
+// Eyebrows 
 DrawLine(faceX - 8, faceY - 8, faceX - 2, faceY - 7, Color{60, 40, 25, 255});
 DrawLine(faceX + 2, faceY - 7, faceX + 8, faceY - 8, Color{60, 40, 25, 255});
 
-// Mouth - changes based on current action for basic expression
+// Mouth 
 if (action == "eat" && animating) {
     DrawCircle(faceX, faceY + 6, 2, Color{100, 40, 40, 255}); // open mouth chewing
 } else if (action == "hunt" && animating) {
@@ -1101,7 +1101,7 @@ game.updateActionAnim(GetFrameTime());
                 
                DrawPlayer(700, 700, game.getPlayer().hasWeapon(), game.getLastAction(), game.getActionAnimTimer(), game.getWolfTimer());
               if (game.getPlayer().hasTentBuilt()) {
-    // Main tent triangle - bigger, shifted left of player
+    // Main tent triangle
     DrawTriangle({480, 700}, {620, 700}, {550, 540}, Color{120, 80, 40, 255});
     // Front flap (darker, for depth)
     DrawTriangle({550, 700}, {620, 700}, {550, 540}, Color{90, 60, 30, 255});
@@ -1148,7 +1148,7 @@ if (game.getWolfTimer() > 0) {
                
               DrawPlayer(700, 700, game.getPlayer().hasWeapon(), game.getLastAction(), game.getActionAnimTimer(), game.getWolfTimer());
               if (game.getPlayer().hasTentBuilt()) {
-    // Main tent triangle - bigger, shifted left of player
+    // Main tent triangle 
     DrawTriangle({480, 700}, {620, 700}, {550, 540}, Color{120, 80, 40, 255});
     // Front flap (darker, for depth)
     DrawTriangle({550, 700}, {620, 700}, {550, 540}, Color{90, 60, 30, 255});
