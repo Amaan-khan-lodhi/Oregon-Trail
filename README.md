@@ -1,4 +1,4 @@
-# 🏕️ Survival Trail Simulator
+# 🏕️ Oregon Trail
  
 A survival game where you trek through a dangerous forest trying to reach the end alive!
  
