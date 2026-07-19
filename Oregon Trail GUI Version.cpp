@@ -1078,8 +1078,8 @@ int main() {
         }
 
         // title bar
-        DrawRectangleRounded({15, 10, 280, 40}, 0.3f, 6, Color{34, 102, 34, 255});
-        DrawTextEx(gameFont, "Survival trail simulator", {30, 22}, 20, 1, Color{144, 238, 144, 255});
+        DrawRectangleRounded({15, 10, 230, 40}, 0.3f, 6, Color{34, 102, 34, 255});
+        DrawTextEx(gameFont, "Oregon Trail ", {30, 22}, 26, 1, Color{144, 238, 144, 255});
 
         renderer.drawStatsPanel(game.getPlayer());
         float msgTimer = game.getEventTimerDuration();
