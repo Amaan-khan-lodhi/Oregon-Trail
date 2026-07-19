@@ -1,5 +1,3 @@
-// you can not Compile and run this code until you have raylib installed and integrated with your IDE so to Play the Game Download the zip file and extract it after that you can run the Game.exe file 
-
 
 #include <raylib.h>
 #include <vector>
@@ -264,7 +262,10 @@ struct Button {
     }
 };
 
-// ================= VISUAL EFFECTS CLASS (GUI ONLY - FIXED) =================
+// Forward declarations, defined later
+
+void DrawStormCloud(int x, int y, float scale, unsigned char alpha);
+// ================= VISUAL EFFECTS CLASS =================
 class VisualEffects {
 private:
     float stormOverlayAlpha = 0;
@@ -300,13 +301,35 @@ public:
             shakeOffset = {0, 0};
         }
     }
-    
     void drawStormEffects() {
-        if (stormOverlayAlpha <= 1) return;
-        
-        // Dark overlay
-        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(),
-                     Color{50, 50, 80, (unsigned char)stormOverlayAlpha});
+    if (stormOverlayAlpha <= 1) return;
+
+    DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(),
+                 Color{50, 50, 80, (unsigned char)stormOverlayAlpha});
+
+    // Drifting storm clouds
+   unsigned char cloudAlpha = (unsigned char)min(255.0f, stormOverlayAlpha * 1.5f);
+int driftX = (int)(rainTimer * 20) % (GetScreenWidth() + 300) - 150;
+
+DrawStormCloud(driftX, 60, 1.0f, cloudAlpha);
+DrawStormCloud(driftX + 250, 40, 1.2f, cloudAlpha);
+DrawStormCloud(driftX + 500, 80, 0.9f, cloudAlpha);
+DrawStormCloud(driftX + 750, 55, 1.3f, cloudAlpha);
+DrawStormCloud(driftX - 250, 70, 1.1f, cloudAlpha);
+DrawStormCloud(driftX - 500, 45, 0.8f, cloudAlpha);
+DrawStormCloud(driftX, 60, 1.0f, cloudAlpha);
+DrawStormCloud(driftX + 250, 40, 1.2f, cloudAlpha);
+DrawStormCloud(driftX + 500, 80, 0.9f, cloudAlpha);
+DrawStormCloud(driftX + 750, 55, 1.3f, cloudAlpha);
+DrawStormCloud(driftX - 250, 70, 1.1f, cloudAlpha);
+DrawStormCloud(driftX - 500, 45, 0.8f, cloudAlpha);
+DrawStormCloud(driftX, 60, 1.0f, cloudAlpha);
+DrawStormCloud(driftX + 850, 40, 1.2f, cloudAlpha);
+DrawStormCloud(driftX + 1000, 80, 0.9f, cloudAlpha);
+DrawStormCloud(driftX + 1250, 55, 1.3f, cloudAlpha);
+DrawStormCloud(driftX - 1500, 70, 1.1f, cloudAlpha);
+DrawStormCloud(driftX - 1750, 45, 0.8f, cloudAlpha);
+
         
         // Rain animation 
         for (int i = 0; i < rainIntensity; i++) {
@@ -331,34 +354,31 @@ public:
         }
     }
     
-    void drawWolfEffects() {
-        if (wolfFlashTimer <= 0) return;
-        
-        float intensity = wolfFlashTimer * 2;
-        intensity = min(1.0f, intensity);
-        
-        // Red flash overlay
-        DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(),
-                     Color{255, 0, 0, (unsigned char)(intensity * 200)});
-        
-        // Wolf eyes
-        int eyeX = GetScreenWidth() / 2;
-        int eyeY = 150;
-        
-        // Left eye
-        DrawCircle(eyeX - 80, eyeY, 30, Color{255, 50, 50, 200});
-        DrawCircle(eyeX - 80, eyeY, 15, Color{100, 0, 0, 255});
-        
-        // Right eye
-        DrawCircle(eyeX + 80, eyeY, 30, Color{255, 50, 50, 200});
-        DrawCircle(eyeX + 80, eyeY, 15, Color{100, 0, 0, 255});
-        
-        // Red danger border
-        DrawRectangleLinesEx({0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()},
-                            10, Color{255, 0, 0, (unsigned char)(intensity * 150)});
-    }
-    
+   void drawWolfEffects() {
+    if (wolfFlashTimer <= 0) return;
+
+    float intensity = wolfFlashTimer * 2;
+    intensity = min(1.0f, intensity);
+
+  DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(),
+             Color{255, 0, 0, (unsigned char)(intensity * 40)}); // was 80
+
+
+    int eyeX = GetScreenWidth() / 2;
+    int eyeY = 150;
+
+    // Add a subtle glow ring behind each eye (bigger, softer, more menacing)
+   DrawCircle(eyeX - 80, eyeY, 45, Color{255, 0, 0, (unsigned char)(intensity * 30)}); 
+DrawCircle(eyeX + 80, eyeY, 45, Color{255, 0, 0, (unsigned char)(intensity * 30)});
+
+DrawCircle(eyeX - 80, eyeY, 30, Color{255, 50, 50, 140}); // was 200
+DrawCircle(eyeX + 80, eyeY, 30, Color{255, 50, 50, 140});
+
+    DrawRectangleLinesEx({0, 0, (float)GetScreenWidth(), (float)GetScreenHeight()},
+                        10, Color{255, 0, 0, (unsigned char)(intensity * 150)});
+}
     Vector2 getShakeOffset() const { return shakeOffset; }
+    float getWolfTimer() const { return wolfFlashTimer; }
 };
  
 // ================= UI RENDERER (GUI ONLY) =================
@@ -367,119 +387,58 @@ private:
     Font font;
     
 public:
-    UIRenderer() {
-        font = LoadFont("assets/fonts/PixelOperator.ttf");
-    }
+      UIRenderer() {
+    font = LoadFont("Assets/Rough One/The Foregen Rough One.ttf");
+}
     
-    void drawStatsPanel(const Player& player, int screenHeight) {
-        // left middle
-        float panelX = 10;
-        float panelY = 90;
-        
-        DrawRectangle(panelX, panelY, 360, 400, Color{30, 60, 30, 255});
-        DrawRectangleLinesEx({panelX, panelY, 360, 400}, 2, Color{100, 200, 100, 255});
-        
-        DrawTextEx(font,"PLAYER STATUS", (Vector2){panelX + 20, panelY + 15},24,2, Color{144, 238, 144, 255});
-        
-        float y = panelY + 55;
-        float barWidth = 240;
-        float barHeight = 22;
-        float spacing = 55;
-        
-        // Health
-        DrawTextEx(font,"HEALTH", (Vector2){panelX + 20, y}, 16 , 2 , Color{255, 100, 100, 255});
-        DrawRectangleLinesEx({panelX + 20, y + 22, barWidth, barHeight}, 1, Color{255, 100, 100, 255});
-        float healthPercent = player.getHealth() / 100.0f;
-        DrawRectangle(panelX + 22, y + 24, (barWidth - 4) * healthPercent, barHeight - 4, 
-                     Color{255, 100, 100, 255});
-        DrawTextEx(font,(to_string(player.getHealth()) + "/100").c_str(),(Vector2) {panelX + 270, y + 24}, 14,2, WHITE);
-        
-        y += spacing;
-        
-        // Food
-        DrawTextEx(font,"FOOD",(Vector2){ panelX + 20, y}, 16,2, Color{255, 180, 0, 255});
-        DrawRectangleLinesEx({panelX + 20, y + 22, barWidth, barHeight}, 1, Color{255, 180, 0, 255});
-        float foodPercent = player.getFood() / 100.0f;
-        DrawRectangle(panelX + 22, y + 24, (barWidth - 4) * foodPercent, barHeight - 4, 
-                     Color{255, 180, 0, 255});
-        DrawTextEx(font,(to_string(player.getFood()) + "/100").c_str(),(Vector2){ panelX + 270, y + 24}, 14,2, WHITE);
-        
-        y += spacing;
-        
-        // Distance
-        DrawTextEx(font,"DISTANCE", (Vector2){panelX + 20, y}, 16,2, Color{100, 200, 100, 255});
-        DrawRectangleLinesEx({panelX + 20, y + 22, barWidth, barHeight}, 1, Color{100, 200, 100, 255});
-        float distancePercent = player.getDistance() / 100.0f;
-        DrawRectangle(panelX + 22, y + 24, (barWidth - 4) * distancePercent, barHeight - 4, 
-                     Color{100, 200, 100, 255});
-        DrawTextEx(font,(to_string(player.getDistance()) + "/100").c_str(),(Vector2){ panelX + 270, y + 24}, 14,2, WHITE);
-        
-        y += spacing;
-        
-        // Money
-        DrawTextEx(font,"MONEY:",(Vector2){ panelX + 20, y}, 14,2, Color{184, 134, 11, 255});
-        DrawTextEx(font,("Rs" + to_string(player.getMoney())).c_str(),(Vector2) {panelX + 150, y}, 16,2, 
-                Color{218, 165, 32, 255});
-        
-        y += 35;
-        
-        // Tent
-        DrawTextEx(font,"TENT:",(Vector2){ panelX + 20, y}, 14,2, Color{100, 200, 100, 255});
-        DrawTextEx(font,player.hasTentBuilt() ? "[BUILT]" : "[NO TENT]",(Vector2){ panelX + 150, y}, 16,2, 
-                player.hasTentBuilt() ? Color{100, 255, 100, 255} : Color{255, 100, 100, 255});
-        
-        y += 35;
-        
-        // Items
-        DrawTextEx(font,"ITEMS:",(Vector2){ panelX + 20, y}, 14,2, Color{150, 150, 255, 255});
-        DrawTextEx(font,(to_string(player.getInventorySize()) + "/10").c_str(),(Vector2){ panelX + 150, y}, 16,2, 
-                Color{200, 200, 255, 255});
-        
-        // Sticks count
-        y += 35;
-        DrawTextEx(font,"STICKS:",(Vector2) {panelX + 20, y}, 14, 2,Color{200, 200, 100, 255});
-        DrawTextEx(font,(to_string(player.getStickCount()) + "/3").c_str(),(Vector2){ panelX + 150, y}, 16,2,
-                Color{255, 255, 100, 255});
-    }
-    void drawEventMessage(const string& message, float& duration) {
-        // Middle Right
-        float panelX = 10;
-        float panelY = 500;
-        float panelWidth = 350;
-        float panelHeight = 150;
-        
-        if (duration > 0) {
-            DrawRectangle(panelX, panelY, panelWidth, panelHeight, Color{50, 100, 50, 220});
-            DrawRectangleLinesEx({panelX, panelY, panelWidth, panelHeight}, 2, Color{100, 200, 100, 255});
-            
-            DrawTextEx(font,"EVENT:",(Vector2) {panelX + 10, panelY + 10}, 22,2, Color{144, 238, 144, 255});
-            
-            // Word wrap for message text
-            int charCount = 0;
-            int line = 0;
-            string currentLine = "";
-            
-            for (char c : message) {
-                currentLine += c;
-                charCount++;
-                
-                if (charCount > 18 || c == '\n') {
-                    DrawTextEx(font,currentLine.c_str(),(Vector2){ panelX + 10, panelY + 35 + (line * 20)}, 18,2, Color{200, 255, 200, 255});
-                    currentLine = "";
-                    charCount = 0;
-                    line++;
-                    
-                    if (line > 4) break;
-                }
-            }
-            
-            if (!currentLine.empty()) {
-                DrawTextEx(font,currentLine.c_str(),(Vector2) {panelX + 10, panelY + 35 + (line * 20)}, 14,2, Color{200, 255, 200, 255});
-            }
-            
-            duration -= GetFrameTime();
-        }
-    }
+    void drawStatsPanel(const Player& player) {
+    float panelX = 20, panelY = 70;
+    DrawRectangleRounded({panelX, panelY, 200, 350}, 0.08f, 6, Color{20, 45, 20, 255});
+
+    DrawTextEx(font, "Status", {panelX + 14, panelY + 12}, 20, 1, Color{144, 238, 144, 255});
+
+    float y = panelY + 42;
+    auto drawBar = [&](const char* label, float percent, Color barColor, int value, int maxVal) {
+        DrawTextEx(font, label, {panelX + 14, y}, 13, 1, barColor);
+        DrawRectangle(panelX + 14, y + 15, 172, 10, Color{20, 20, 20, 150});
+        DrawRectangle(panelX + 14, y + 15, 172 * percent, 10, barColor);
+        string val = to_string(value);
+        DrawTextEx(font, val.c_str(), {panelX + 178 - MeasureTextEx(font, val.c_str(), 11, 1).x, y + 15}, 11, 1, WHITE);
+    };
+
+    drawBar("Health", player.getHealth() / 100.0f, Color{255, 100, 100, 255}, player.getHealth(), 100);
+    y += 34;
+    drawBar("Food", player.getFood() / 100.0f, Color{255, 180, 0, 255}, player.getFood(), 100);
+    y += 34;
+    drawBar("Distance", player.getDistance() / 100.0f, Color{100, 200, 100, 255}, player.getDistance(), 100);
+
+    // Money / Tent / Items / Sticks as a compact 2x2 grid
+    float gy = y + 40;
+    auto drawChip = [&](float cx, float cy, const char* label, const string& value, Color labelColor, Color valueColor) {
+        DrawRectangleRounded({cx, cy, 84, 40}, 0.15f, 4, Color{35, 65, 35, 255});
+        DrawTextEx(font, label, {cx + 8, cy + 5}, 10, 1, labelColor);
+        DrawTextEx(font, value.c_str(), {cx + 8, cy + 20}, 14, 1, valueColor);
+    };
+
+    drawChip(panelX + 14, gy, "Money", "Rs" + to_string(player.getMoney()), Color{184, 134, 11, 255}, Color{218, 165, 32, 255});
+    drawChip(panelX + 102, gy, "Tent", player.hasTentBuilt() ? "Built" : "None",
+             Color{100, 200, 100, 255}, player.hasTentBuilt() ? Color{100, 255, 100, 255} : Color{255, 100, 100, 255});
+    drawChip(panelX + 14, gy + 46, "Items", to_string(player.getInventorySize()) + "/10", Color{150, 150, 255, 255}, Color{200, 200, 255, 255});
+    drawChip(panelX + 102, gy + 46, "Sticks", to_string(player.getStickCount()) + "/3", Color{200, 200, 100, 255}, Color{255, 255, 100, 255});
+}
+    void drawEventMessage(const string& message, float& duration, int screenWidth) {
+    if (duration <= 0) return;
+
+    Vector2 textSize = MeasureTextEx(font, message.c_str(), 16, 1);
+    float boxWidth = min(650.0f, max(300.0f, textSize.x + 50));
+    float boxX = (screenWidth - boxWidth) / 2;
+    float boxY = 150; // sits below the storm cloud band, clear of overlap
+
+    DrawRectangleRounded({boxX, boxY, boxWidth, 44}, 0.5f, 8, Color{34, 102, 34, 230});
+    DrawTextEx(font, message.c_str(), {boxX + (boxWidth - textSize.x) / 2, boxY + 14}, 16, 1, Color{200, 255, 200, 255});
+
+    duration -= GetFrameTime();
+}
     
     void drawGameOver(const string& message, const Player& player) {
         DrawRectangle(0, 0, GetScreenWidth(), GetScreenHeight(), Color{0, 0, 0, 200});
@@ -590,6 +549,8 @@ private:
     bool gameOver;
     bool playerWon;
     string gameOverMessage;
+    string lastAction = "";
+    float actionAnimTimer = 0;
 
 
     
@@ -635,13 +596,13 @@ private:
             if (player.hasWeapon()) {
                 player.updateStats(-GameConstants::WOLF_STICK_DAMAGE, 0, 0);
                 player.useStick();
-                effects.triggerWolfAttack(0.3f);
+                effects.triggerWolfAttack(1.5f);
                 eventMessage = "Wolf attacked! You fought it off with your stick!";
             } else {
                 int damage = isDay ? GameConstants::WOLF_DAMAGE_DAY : 
                                     GameConstants::WOLF_DAMAGE_NIGHT;
                 player.updateStats(-damage, 0, 0);
-                effects.triggerWolfAttack(0.5f);
+                effects.triggerWolfAttack(2.0f);
                 eventMessage = "WOLF! You took " + to_string(damage) + " damage!";
             }
             eventTimer = 2.5f;
@@ -668,6 +629,7 @@ public:
     
     void updateEffects(float deltaTime) { effects.update(deltaTime); }
     VisualEffects& getEffects() { return effects; }
+    float getWolfTimer() const { return effects.getWolfTimer(); }
     
     
     void updateTime() {
@@ -681,6 +643,7 @@ public:
         player.updateStats(-GameConstants::TRAVEL_HEALTH_COST, 
                           -GameConstants::TRAVEL_FOOD_COST, 
                           GameConstants::TRAVEL_DISTANCE_GAIN);
+                          triggerActionAnim("travel");
         eventMessage = "You traveled 1.5 km";
         eventTimer = 1.5f;
         processNextTurn();
@@ -689,6 +652,7 @@ public:
     void hunt() {
         player.updateStats(-GameConstants::HUNT_HEALTH_COST, 
                           GameConstants::HUNT_FOOD_GAIN, 0);
+                          triggerActionAnim("hunt");
         eventMessage = "You hunted and found food!";
         eventTimer = 1.5f;
         processNextTurn();
@@ -696,6 +660,7 @@ public:
     
     void rest() {
         player.updateStats(GameConstants::REST_HEALTH_GAIN, 0, 0);
+        triggerActionAnim("rest");
         eventMessage = "You rested and recovered health";
         eventTimer = 1.5f;
         processNextTurn();
@@ -731,6 +696,7 @@ public:
         if (player.eatFood()) {
             eventMessage = "You ate food and gained health!";
             eventTimer = 1.5f;
+            triggerActionAnim("eat");
             processNextTurn();
         } else {
             eventMessage = "Not enough food to eat!";
@@ -752,7 +718,15 @@ public:
         }
         eventTimer = 2.0f;
     }
-    
+   void triggerActionAnim(const string& action) {
+    lastAction = action;
+    actionAnimTimer = 0.6f;
+}
+string getLastAction() const { return lastAction; }
+float getActionAnimTimer() const { return actionAnimTimer; }
+void updateActionAnim(float dt) {
+    if (actionAnimTimer > 0) actionAnimTimer -= dt;
+}
     void processNextTurn() {
         updateTime();
         handleFindStick();
@@ -770,7 +744,204 @@ public:
     float getEventTimerDuration() const { return eventTimer; }
 };
 
+void DrawWolfCharacter(int playerX, int groundY, float alpha)
+{
+    int cx = playerX + 110;
 
+    // Grey wolf palette - light body, darker back, white belly/chest
+    Color furBack   = Color{120, 125, 135, (unsigned char)alpha}; // steel grey
+    Color furBody   = Color{165, 170, 178, (unsigned char)alpha}; // lighter grey
+    Color furBelly  = Color{225, 225, 225, (unsigned char)alpha}; // near white
+    Color furDark   = Color{80, 82, 90, (unsigned char)alpha};    // shadow/legs/ears tips
+    Color eyeColor  = Color{230, 200, 90, (unsigned char)alpha};  // amber eyes
+    Color noseColor = Color{25, 25, 25, (unsigned char)alpha};
+//Tail
+DrawEllipse(cx + 58, groundY - 40, 16, 9, furBack);
+DrawEllipse(cx + 63, groundY - 45, 10, 6, furBelly);
+
+//Body
+DrawEllipse(cx, groundY - 36, 38, 18, furBack);
+DrawEllipse(cx, groundY - 24, 30, 10, furBelly);
+
+    // Legs
+    DrawRectangle(cx - 38, groundY - 18, 10, 20, furDark);
+    DrawRectangle(cx - 14, groundY - 18, 10, 20, furDark);
+    DrawRectangle(cx + 14, groundY - 18, 10, 20, furDark);
+    DrawRectangle(cx + 34, groundY - 18, 10, 20, furDark);
+
+// Head (toward player, left side) - square shaped
+int headX = cx - 55;
+int headY = groundY - 50;
+DrawRectangleRounded({(float)headX - 16, (float)headY - 16, 32, 32}, 0.15f, 4, furBody);
+
+// Snout (tapered, pointed) - anchored to square head's left edge
+DrawTriangle(
+    {(float)headX - 12, (float)headY - 5},
+    {(float)headX - 36, (float)headY + 3},
+    {(float)headX - 12, (float)headY + 11},
+    furBelly
+);
+DrawCircle(headX - 34, headY + 3, 3, noseColor);
+
+// Ears - anchored to square head's top corners
+DrawTriangle({(float)headX - 14, (float)headY - 14}, {(float)headX - 20, (float)headY - 34}, {(float)headX - 2, (float)headY - 16}, furBack);
+DrawTriangle({(float)headX + 4, (float)headY - 16}, {(float)headX, (float)headY - 36}, {(float)headX + 14, (float)headY - 18}, furBack);
+
+// Eyes
+DrawCircle(headX - 8, headY - 2, 3, eyeColor);
+DrawEllipse(headX - 8, headY - 4, 3, 1.2f, Color{50,40,20,(unsigned char)alpha});
+}
+void DrawPlayer(int x, int groundY, bool hasWeapon, const string& action, float animTimer, float wolfTimer)
+{
+    float t = GetTime();
+    float bob = sinf(t * 4.0f) * 3.0f;
+    int baseY = groundY - (int)bob;
+
+    Color skin = Color{224, 172, 128, 255};
+    Color shirt = Color{60, 90, 150, 255};
+    Color pants = Color{50, 50, 60, 255};
+
+    bool animating = animTimer > 0;
+    float progress = animating ? (0.6f - animTimer) / 0.6f : 0; // 0 to 1 over the anim
+
+    int legOffsetL = 0, legOffsetR = 0;
+    int armAngleL = 0, armAngleR = 0;
+    int bodyLean = 0;
+    int knockback = 0;
+    if (wolfTimer > 0) {
+        float knockProgress = min(1.0f, wolfTimer * 2.0f);
+        knockback = (int)(-20 * knockProgress);
+    }
+
+    if (animating && action == "travel") {
+        float walk = sinf(t * 14.0f);
+        legOffsetL = (int)(walk * 10);
+        legOffsetR = (int)(-walk * 10);
+        armAngleL = (int)(-walk * 8);
+        armAngleR = (int)(walk * 8);
+        bodyLean = (int)(15 * sinf(progress * PI));
+    }
+    else if (animating && action == "hunt") {
+        armAngleR = (int)(-40 * sinf(progress * PI)); // arm swings forward and back
+        bodyLean = (int)(5 * sinf(progress * PI));
+    }
+    else if (animating && action == "rest") {
+        bob = 0; // override idle bob, keep player low/still
+        baseY = groundY;
+    }
+    else if (animating && action == "eat") {
+        armAngleR = -50; // arm held up to mouth
+    }
+
+    int headY = baseY - 70;
+    int bodyTopY = baseY - 55;
+    int bodyBottomY = baseY - 20;
+
+    // Legs
+    DrawRectangle(x - 12 + (bodyLean + knockback), bodyBottomY + legOffsetL / 4, 8, 20 - legOffsetL / 4, pants);
+    DrawRectangle(x + 4 + (bodyLean + knockback), bodyBottomY + legOffsetR / 4, 8, 20 - legOffsetR / 4, pants);
+
+    // Body
+    DrawRectangle(x - 15 +(bodyLean + knockback), bodyTopY, 30, 35, shirt);
+
+    // Arms
+    Vector2 armLStart = {(float)(x - 15 + (bodyLean + knockback)), (float)(bodyTopY + 8)};
+    Vector2 armLEnd = {armLStart.x - 12, armLStart.y + 20 + armAngleL / 3};
+    DrawLineEx(armLStart, armLEnd, 7, skin);
+
+    Vector2 armRStart = {(float)(x + 15 +(bodyLean + knockback)), (float)(bodyTopY + 8)};
+    Vector2 armREnd = {armRStart.x + 12, armRStart.y + 20 + armAngleR / 2};
+    if (action == "eat" && animating) {
+        armREnd = {(float)(x + 5 + (bodyLean + knockback)), (float)(headY + 5)};
+    }
+    DrawLineEx(armRStart, armREnd, 7, skin);
+
+    // Head
+    DrawCircle(x + (bodyLean + knockback), headY, 14, skin);
+    DrawRectangle(x - 14 + (bodyLean + knockback), headY - 14, 28, 6, Color{40, 30, 20, 255});
+    // Face features
+int faceX = x + (bodyLean + knockback);
+int faceY = headY;
+
+// Eyes
+DrawCircle(faceX - 5, faceY - 2, 2, Color{30, 30, 30, 255});
+DrawCircle(faceX + 5, faceY - 2, 2, Color{30, 30, 30, 255});
+
+// Eyebrows (slightly angled for a bit of expression)
+DrawLine(faceX - 8, faceY - 8, faceX - 2, faceY - 7, Color{60, 40, 25, 255});
+DrawLine(faceX + 2, faceY - 7, faceX + 8, faceY - 8, Color{60, 40, 25, 255});
+
+// Mouth - changes based on current action for basic expression
+if (action == "eat" && animating) {
+    DrawCircle(faceX, faceY + 6, 2, Color{100, 40, 40, 255}); // open mouth chewing
+} else if (action == "hunt" && animating) {
+    DrawLine(faceX - 4, faceY + 6, faceX + 4, faceY + 6, Color{100, 40, 40, 255}); // flat/tense
+} else {
+    DrawLine(faceX - 3, faceY + 6, faceX + 3, faceY + 5, Color{100, 40, 40, 255}); // neutral/slight smile
+}
+
+// Nose (tiny hint)
+DrawLine(faceX, faceY, faceX, faceY + 3, Color{200, 150, 110, 255});
+
+    // Stick, if carrying one
+    if (hasWeapon) {
+        DrawLine(x + 20 + (bodyLean + knockback), bodyTopY + 10, x + 35 + (bodyLean + knockback), bodyTopY - 15, Color{101, 67, 33, 255});
+    }
+    if (wolfTimer > 0) {
+    float bloodAlpha = min(1.0f, wolfTimer * 2.0f) * 255.0f;
+    Color blood = Color{180, 20, 20, (unsigned char)bloodAlpha};
+    int bx = x + bodyLean + knockback;
+    DrawCircle(bx + 10, headY + 10, 3, blood);
+    DrawCircle(bx + 15, headY + 18, 2, blood);
+    DrawCircle(bx + 6, headY + 22, 2, blood);
+    DrawCircle(bx + 20, headY + 30, 3, blood);
+    DrawCircle(bx + 25, headY + 34, 2, blood);
+    DrawCircle(bx + 16, headY + 42, 2, blood);
+    DrawLine(bx + 8, headY + 8, bx + 12, headY + 20, blood);
+}
+}    
+void DrawForestTreeBack(int x, int groundY, int size)
+{
+    // Same shape as DrawForestTree but muted colors, smaller, drawn first
+    int trunkWidth = size / 5;
+    int trunkHeight = size;
+    int trunkX = x - trunkWidth / 2;
+    int trunkY = groundY - trunkHeight;
+
+    DrawRectangle(trunkX, trunkY, trunkWidth, trunkHeight, Color{60, 45, 30, 180});
+
+    Color leafDark = Color{20, 70, 20, 180};
+    Color leafMain = Color{35, 90, 35, 180};
+
+    float foliageX = x;
+    float foliageY = trunkY - size / 4;
+
+    DrawTriangle(
+        {foliageX - size / 2, foliageY + size / 3},
+        {foliageX + size / 2, foliageY + size / 3},
+        {foliageX, foliageY - size / 3},
+        leafDark
+    );
+    DrawTriangle(
+        {foliageX - size / 2.5f, foliageY - size / 6},
+        {foliageX + size / 2.5f, foliageY - size / 6},
+        {foliageX, foliageY - size / 2},
+        leafMain
+    );
+}
+
+
+
+void DrawStormCloud(int x, int y, float scale, unsigned char alpha)
+{
+    Color cloudDark = Color{60, 60, 75, alpha};
+    Color cloudMid  = Color{90, 90, 105, alpha};
+
+    DrawCircle(x, y, 35 * scale, cloudDark);
+    DrawCircle(x + 35 * scale, y - 10 * scale, 40 * scale, cloudMid);
+    DrawCircle(x + 75 * scale, y, 32 * scale, cloudDark);
+    DrawCircle(x + 40 * scale, y + 10 * scale, 38 * scale, cloudMid);
+}
  void DrawForestTree(int x, int groundY, int size)
 {
     // ============= TRUNK =============
@@ -840,7 +1011,10 @@ int main() {
     SetTargetFPS(60);
     
     Game game;
+   Font gameFont = LoadFont("Assets/Rough One/The Foregen Rough One.ttf");
     UIRenderer renderer;
+    float parallaxOffset = 0;
+    int lastDistance = 0;
     
     // ===== BUTTON LAYOUT - HORIZONTAL BOTTOM ROW =====
     vector<Button> actionButtons;
@@ -895,10 +1069,15 @@ int main() {
 
 
          game.updateEffects(GetFrameTime());
+game.updateActionAnim(GetFrameTime());
+         int currentDistance = game.getPlayer().getDistance();
+        if (currentDistance != lastDistance) {
+            parallaxOffset += (currentDistance - lastDistance) * 8.0f; 
+            lastDistance = currentDistance;
+}
         
         // ===== DRAW PHASE =====
         BeginDrawing();
-        Font font = LoadFont("assets/fonts/PixelOperator.ttf");
         // Background based on day/night
         if (game.isDayTime()) {
             ClearBackground(Color{135, 206, 235, 255});
@@ -907,11 +1086,32 @@ int main() {
             DrawCircle(1350, 50, 80, Color{255, 255, 150, 80});
             DrawCircle(1350, 50, 60, Color{255, 255, 200, 100});
             
-            
+
+                int backOffset = (int)parallaxOffset % 300;
+                DrawForestTreeBack(250 - backOffset, 700, 70);
+                DrawForestTreeBack(550 - backOffset, 700, 70);
+                DrawForestTreeBack(850 - backOffset, 700, 70);
+                DrawForestTreeBack(1150 - backOffset, 700, 70);
+                DrawForestTreeBack(1450 - backOffset, 700, 70);
+                            
                 DrawForestTree(350, 700, 100);   // Tree 1
                 DrawForestTree(600, 700, 100);   // Tree 2
                 DrawForestTree(900, 700, 100);   // Tree 3
                 DrawForestTree(1200, 700, 100);  // Tree 4
+                
+               DrawPlayer(700, 700, game.getPlayer().hasWeapon(), game.getLastAction(), game.getActionAnimTimer(), game.getWolfTimer());
+              if (game.getPlayer().hasTentBuilt()) {
+    // Main tent triangle - bigger, shifted left of player
+    DrawTriangle({480, 700}, {620, 700}, {550, 540}, Color{120, 80, 40, 255});
+    // Front flap (darker, for depth)
+    DrawTriangle({550, 700}, {620, 700}, {550, 540}, Color{90, 60, 30, 255});
+    // Entrance opening
+DrawTriangle({510, 700}, {560, 700}, {550, 610}, Color{40, 25, 15, 255});
+}
+if (game.getWolfTimer() > 0) {
+    float alpha = min(1.0f, game.getWolfTimer() * 2.0f) * 255.0f;
+    DrawWolfCharacter(700, 700, alpha);
+}
              game.getEffects().drawStormEffects();
              game.getEffects().drawWolfEffects();
             
@@ -935,40 +1135,49 @@ int main() {
                 Color starColor = (i % 2 == 0) ? Color{255, 255, 255, 255} : Color{200, 200, 255, 255};
                 DrawCircle(starX, starY, starSize, starColor);
             }
-            
+                int backOffset = (int)parallaxOffset % 300;
+            DrawForestTreeBack(250 - backOffset, 700, 70);
+            DrawForestTreeBack(550 - backOffset, 700, 70);
+            DrawForestTreeBack(850 - backOffset, 700, 70);
+            DrawForestTreeBack(1150 - backOffset, 700, 70);
+            DrawForestTreeBack(1450 - backOffset, 700, 70);
                 DrawForestTree(350, 700, 100);   // Tree 1
                 DrawForestTree(600, 700, 100);   // Tree 2
                 DrawForestTree(900, 700, 100);   // Tree 3
                 DrawForestTree(1200, 700, 100);  // Tree 4
-            game.getEffects().drawStormEffects();
-             game.getEffects().drawWolfEffects();
+               
+              DrawPlayer(700, 700, game.getPlayer().hasWeapon(), game.getLastAction(), game.getActionAnimTimer(), game.getWolfTimer());
+              if (game.getPlayer().hasTentBuilt()) {
+    // Main tent triangle - bigger, shifted left of player
+    DrawTriangle({480, 700}, {620, 700}, {550, 540}, Color{120, 80, 40, 255});
+    // Front flap (darker, for depth)
+    DrawTriangle({550, 700}, {620, 700}, {550, 540}, Color{90, 60, 30, 255});
+    // Entrance opening
+DrawTriangle({510, 700}, {560, 700}, {550, 610}, Color{40, 25, 15, 255});
+}
+if (game.getWolfTimer() > 0) {
+    float alpha = min(1.0f, game.getWolfTimer() * 2.0f) * 255.0f;
+    DrawWolfCharacter(700, 700, alpha);
+}
+                game.getEffects().drawStormEffects();
+                game.getEffects().drawWolfEffects();
 
              
             
             // Dark ground
-            DrawRectangle(50, 700, 2000 , 100, Color{20, 30, 20, 255});
+            DrawRectangle(100, 700, 2500 , 100, Color{20, 30, 20, 255});
         }
         
         // ===== TITLE BAR =====
-        DrawRectangle(15, 10, screenWidth - 240, 60, Color{34, 102, 34, 255});
-        DrawRectangleLinesEx({15, 10, screenWidth - 240, 60}, 2, Color{144, 238, 144, 255});
-        DrawTextEx(font, "SURVIVAL TRAIL SIMULATOR - Reach 100 to Escape",(Vector2){ 70, 25}, 18,2, Color{144, 238, 144, 255});
-        
-        // Day/Night indicator
-        float dayNightX = screenWidth - 400;
-        if (game.isDayTime()) {
-            DrawRectangle(dayNightX, 15, 170, 50, Color{255, 200, 0, 100});
-            DrawTextEx(font,"DAY", (Vector2) {dayNightX + 20, 30}, 20,2, Color{255, 255, 0, 255});
-        } else {
-            DrawRectangle(dayNightX, 15, 170, 50, Color{50, 50, 150, 100});
-            DrawTextEx(font,"NIGHT",(Vector2){ dayNightX + 35, 30}, 20,2, Color{150, 200, 255, 255});
-        }
+        DrawRectangleRounded({15, 10, 280, 40}, 0.3f, 6, Color{34, 102, 34, 255});
+DrawTextEx(gameFont, "Survival trail simulator", {30, 22}, 20, 1, Color{144, 238, 144, 255});
+
+
         
         // ===== DRAW UI PANELS =====
-        renderer.drawStatsPanel(game.getPlayer(),780);
-        
-        float msgTimer = game.getEventTimerDuration();
-        renderer.drawEventMessage(game.getEventMessage(), msgTimer);
+       renderer.drawStatsPanel(game.getPlayer());
+float msgTimer = game.getEventTimerDuration();
+renderer.drawEventMessage(game.getEventMessage(), msgTimer, screenWidth);
         
         // ===== DRAW BOTTOM BUTTONS =====
         Font defaultFont = GetFontDefault();
