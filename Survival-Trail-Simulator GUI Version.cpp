@@ -934,7 +934,7 @@ int main() {
     const int screenWidth = 1450;
     const int screenHeight = 800;
 
-    InitWindow(screenWidth, screenHeight, "Survival Trail Simulator - Forest Adventure");
+    InitWindow(screenWidth, screenHeight, "Oregon Trail - Forest Adventure");
     SetTargetFPS(60);
 
     Game game;
