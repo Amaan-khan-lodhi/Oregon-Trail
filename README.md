@@ -1,5 +1,6 @@
 # 🏕️ Oregon Trail
- <img width="728" height="400" alt="Screenshot 2026-07-20 022755" src="https://github.com/user-attachments/assets/8ac897d8-a6ec-46cb-981a-3f43c8e00d77" />
+ <img width="721" height="399" alt="Screenshot 2026-07-20 034014" src="https://github.com/user-attachments/assets/59f5f70e-d8ea-4d94-a97d-cee2865533c6" />
+
 
 A survival game where you trek through a dangerous forest trying to reach the end alive!
  
